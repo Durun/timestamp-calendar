@@ -9,23 +9,24 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.github.durun.timestampcalendar.R
+import io.github.durun.timestampcalendar.databinding.ActivityMainBinding
+import io.github.durun.timestampcalendar.databinding.RowBinding
 import io.github.durun.timestampcalendar.libs.*
-import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
     companion object {
         private const val PREFERENCES_FILE_NAME = "preferences.txt"
         private const val TAG = "MainActivity"
     }
+
+    private lateinit var binding: ActivityMainBinding
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var preferences: SharedPreferences
@@ -48,14 +49,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         preferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE)
         rows = preferences.loadRows()
         auth = MyAuth(this)
 
         // リスト
         val rowsAdapter = MyAdapter(rows)
-        recyclerView.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = rowsAdapter
         }
@@ -79,19 +81,19 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         }).also {
-            it.attachToRecyclerView(recyclerView)
+            it.attachToRecyclerView(binding.recyclerView)
         }
 
         // リスト追加ボタン
-        addButton.setOnClickListener {
-            val newText = textInput.text?.toString() ?: return@setOnClickListener
-            textInput.setText("")
+        binding.addButton.setOnClickListener {
+            val newText = binding.textInput.text?.toString() ?: return@setOnClickListener
+            binding.textInput.setText("")
             rows.addRowDataIfNotBlank(newText)
             rowsAdapter.notifyItemInserted(rows.lastIndex)
         }
 
         // 設定ボタン -> 設定画面へ遷移
-        configButton.setOnClickListener {
+        binding.configButton.setOnClickListener {
             val intent = Intent(applicationContext, SettingsActivity::class.java)
             startActivity(intent)
         }
@@ -103,10 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     class MyHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val handle: ImageButton = itemView.findViewById(R.id.handle)
-        val textView: TextView = itemView.findViewById(R.id.rowTextView)
-        val sendButton: ImageButton = itemView.findViewById(R.id.sendButton)
-        val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
+        val binding = RowBinding.bind(itemView)
     }
 
     // リストの行
@@ -114,14 +113,13 @@ class MainActivity : AppCompatActivity() {
         private val rows: MutableList<RowData>
     ) : RecyclerView.Adapter<MyHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyHolder {
-            val inflated = LayoutInflater.from(parent.context)
-                .inflate(R.layout.row, parent, false)
-            return MyHolder(inflated)
+            val binding = RowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return MyHolder(binding.root)
         }
 
         override fun onBindViewHolder(holder: MyHolder, position: Int) {
             // ハンドル
-            holder.handle.setOnTouchListener { _, event ->
+            holder.binding.handle.setOnTouchListener { _, event ->
                 if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                     itemTouchHelper.startDrag(holder)
                 }
@@ -129,10 +127,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             // テキスト
-            holder.textView.text = rows[position].text
+            holder.binding.rowTextView.text = rows[position].text
 
             // ゴミ箱ボタン
-            holder.deleteButton.setOnClickListener {
+            holder.binding.deleteButton.setOnClickListener {
                 //Toast.makeText(applicationContext, "Deleting rows[$position]", Toast.LENGTH_SHORT).show()
                 rows.removeAt(position)
                 notifyItemRemoved(position)
@@ -140,7 +138,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             // 送信ボタン
-            holder.sendButton.setOnClickListener {
+            holder.binding.sendButton.setOnClickListener {
                 val row = rows[position]
                 if (auth.isSignedIn()) {
                     // サインイン済み

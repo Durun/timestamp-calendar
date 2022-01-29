@@ -4,17 +4,20 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import io.github.durun.timestampcalendar.R
+import io.github.durun.timestampcalendar.databinding.SettingsActivityBinding
 
 class SettingsActivity : AppCompatActivity() {
+    lateinit var binding: SettingsActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        binding = SettingsActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         if (savedInstanceState == null) {
             supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.settings, SettingsFragment())
-                    .commit()
+                .beginTransaction()
+                .replace(binding.settings.id, SettingsFragment())
+                .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
