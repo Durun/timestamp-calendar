@@ -11,13 +11,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
-import com.google.api.client.extensions.android.http.AndroidHttp
-import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.services.drive.Drive
 import io.github.durun.timestampcalendar.R
 import io.github.durun.timestampcalendar.databinding.SettingsActivityBinding
 import io.github.durun.timestampcalendar.libs.DataSheet
 import io.github.durun.timestampcalendar.libs.MyAuth
+import io.github.durun.timestampcalendar.libs.driveService
 import io.github.durun.timestampcalendar.libs.sheetsService
 
 class SettingsActivity : AppCompatActivity() {
@@ -157,14 +155,7 @@ class SettingsActivity : AppCompatActivity() {
                     Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show()
                     return emptyList()
                 }
-                println("Account: ${it.credential.selectedAccount.name}")
-                Drive.Builder(
-                    AndroidHttp.newCompatibleTransport(),
-                    JacksonFactory.getDefaultInstance(),
-                    it.credential
-                )
-                    .setApplicationName("Timestamp Calendar")
-                    .build()
+                driveService(it.credential)
             }
         val files = service.Files()
             .list()
