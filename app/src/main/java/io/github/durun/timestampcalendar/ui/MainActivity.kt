@@ -1,16 +1,13 @@
 package io.github.durun.timestampcalendar.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,20 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preferences: SharedPreferences
     private lateinit var rows: RowDataList
     private lateinit var auth: MyAuth
-
-    private val startSignIn =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val data = result.data
-            if (result.resultCode == Activity.RESULT_OK && data != null) auth.handleSignInResult(
-                data
-            )
-            Log.i(TAG, "Signed in: ${auth.credential.selectedAccount?.name}")
-            Toast.makeText(
-                applicationContext,
-                "Signed in: ${auth.credential.selectedAccount?.name}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,7 +114,6 @@ class MainActivity : AppCompatActivity() {
 
             // ゴミ箱ボタン
             holder.binding.deleteButton.setOnClickListener {
-                //Toast.makeText(applicationContext, "Deleting rows[$position]", Toast.LENGTH_SHORT).show()
                 rows.removeAt(position)
                 notifyItemRemoved(position)
                 notifyDataSetChanged()
@@ -139,18 +121,17 @@ class MainActivity : AppCompatActivity() {
 
             // 送信ボタン
             holder.binding.sendButton.setOnClickListener {
-                val row = rows[position]
-                if (auth.isSignedIn()) {
-                    // サインイン済み
-                    val intent = Intent(this@MainActivity, SendRowService::class.java)
-                        .setAction(Intent.ACTION_SEND)
-                        .putExtra(RowData.INTENT_KEY, row)
-                    // SendRowServiceを起動
-                    startService(intent)
-                } else {
-                    // Googleにサインイン
-                    startSignIn.launch(auth.signInIntent())
+                // サインインしてなければ中止
+                if (!auth.isSignedIn()) {
+                    Toast.makeText(this@MainActivity, "Not logged in", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
+                val row = rows[position]
+                val intent = Intent(this@MainActivity, SendRowService::class.java)
+                    .setAction(Intent.ACTION_SEND)
+                    .putExtra(RowData.INTENT_KEY, row)
+                // SendRowServiceを起動
+                startService(intent)
             }
         }
 

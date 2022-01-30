@@ -25,14 +25,10 @@ class SettingsActivity : AppCompatActivity() {
     private val startSignIn =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             val data = result.data
-            if (result.resultCode == Activity.RESULT_OK && data != null) auth.handleSignInResult(
-                data
-            )
-            Toast.makeText(
-                applicationContext,
-                "Signed in: ${auth.credential.selectedAccount?.name}",
-                Toast.LENGTH_SHORT
-            ).show()
+            if (result.resultCode == Activity.RESULT_OK && data != null) {
+                auth.handleSignInResult(data)
+                Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
