@@ -49,10 +49,14 @@ dependencies {
     implementation("com.google.api-client:google-api-client-android:1.23.0")
     implementation("com.google.android.gms:play-services-auth:20.0.1")
 
+    // To use google drive
+    implementation("com.google.apis:google-api-services-drive:v3-rev110-1.23.0")
+
     // To solve Duplicate class
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test:core-ktx:1.4.0")
 }

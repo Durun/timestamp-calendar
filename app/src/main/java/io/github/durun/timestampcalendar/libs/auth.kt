@@ -1,6 +1,5 @@
 package io.github.durun.timestampcalendar.libs
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -15,7 +14,8 @@ class MyAuth(private val context: Context) {
     companion object {
         private const val TAG = "MyAuth"
         private val scopes = listOf(
-            "https://www.googleapis.com/auth/spreadsheets"
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
         )
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .apply { scopes.forEach { requestScopes(Scope(it)) } }
@@ -46,6 +46,13 @@ class MyAuth(private val context: Context) {
             credential.selectedAccount = account.account
         }.onFailure {
             Log.w(TAG, "Sign in failed: ${it.message}")
+        }
+    }
+
+    fun signInLastAccount() {
+        val account = lastSignedInAccount()
+        if (account != null) {
+            credential.selectedAccount = account.account
         }
     }
 

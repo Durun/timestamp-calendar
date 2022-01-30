@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.preference.PreferenceManager
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
@@ -67,6 +68,9 @@ class SendRowService : IntentService("SendRowService") {
         val value = ValueRange().setValues(
             listOf(sendRow)
         )
+
+        val sheetId = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString("spread_sheet_id", null)
 
         val sheetName = "シート1"    // TODO
 
