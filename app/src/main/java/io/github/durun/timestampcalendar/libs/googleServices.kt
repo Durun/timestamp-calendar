@@ -6,14 +6,20 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.sheets.v4.Sheets
 
+private const val appName = "Timestamp Calendar"
+
 fun sheetsService(credential: GoogleAccountCredential): Sheets = Sheets.Builder(
     AndroidHttp.newCompatibleTransport(),
     JacksonFactory.getDefaultInstance(),
     credential
-).build()
+)
+    .setApplicationName(appName)
+    .build()
 
 fun driveService(credential: GoogleAccountCredential): Drive = Drive.Builder(
     AndroidHttp.newCompatibleTransport(),
     JacksonFactory.getDefaultInstance(),
     credential
-).build()
+)
+    .setApplicationName(appName)
+    .build()

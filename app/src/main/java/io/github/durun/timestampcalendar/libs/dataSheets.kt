@@ -6,13 +6,15 @@ import com.google.api.services.sheets.v4.model.RowData
 
 object DataSheet {
     const val title = "TimeStampCalendarData"
+    const val controlSheetName = "control"
+    const val logSheetName = "log"
 
     fun newSheet(): Spreadsheet {
         return Spreadsheet().apply {
             properties = SpreadsheetProperties().setTitle("TimeStampCalendarData")
             sheets = listOf(
                 Sheet().apply {
-                    properties = SheetProperties().setTitle("control")
+                    properties = SheetProperties().setTitle(controlSheetName)
                     data = listOf(GridData().apply {
                         startRow = 0
                         startColumn = 0
@@ -24,7 +26,7 @@ object DataSheet {
                     })
                 },
                 Sheet().apply {
-                    properties = SheetProperties().setTitle("log")
+                    properties = SheetProperties().setTitle(logSheetName)
                 }
             )
         }
@@ -43,10 +45,33 @@ object DataSheet {
         return files.firstOrNull()?.id
     }
 
+    fun logSheetExists(credential: GoogleAccountCredential, spreadSheetId: String): Boolean {
+        val spreadsheet = sheetsService(credential).Spreadsheets()[spreadSheetId]
+            .execute()
+        val titles = spreadsheet.sheets.map { it.properties.title }
+        return logSheetName in titles
+    }
+
+    fun makeLogSheet(credential: GoogleAccountCredential, spreadSheetId: String) {
+        val body = BatchUpdateSpreadsheetRequest()
+            .setRequests(
+                listOf(
+                    Request()
+                        .setAddSheet(
+                            AddSheetRequest()
+                                .setProperties(SheetProperties().setTitle(logSheetName))
+                        )
+                )
+            )
+        sheetsService(credential).Spreadsheets()
+            .batchUpdate(spreadSheetId, body)
+            .execute()
+    }
+
     fun isFormatOk(credential: GoogleAccountCredential, spreadSheetId: String): Boolean {
         val spreadsheet = sheetsService(credential).Spreadsheets()[spreadSheetId]
             .execute()
         val titles = spreadsheet.sheets.map { it.properties.title }
-        return titles.containsAll(listOf("control", "log"))
+        return titles.containsAll(listOf(controlSheetName, logSheetName))
     }
 }

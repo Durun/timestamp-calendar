@@ -8,13 +8,12 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.preference.PreferenceManager
-import com.google.api.client.extensions.android.http.AndroidHttp
-import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.ValueRange
 import io.github.durun.timestampcalendar.R
+import io.github.durun.timestampcalendar.libs.DataSheet
 import io.github.durun.timestampcalendar.libs.MyAuth
 import io.github.durun.timestampcalendar.libs.RowData
+import io.github.durun.timestampcalendar.libs.sheetsService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -57,13 +56,7 @@ class SendRowService : IntentService("SendRowService") {
         notification.notify()
 
         // スプレッドシート
-        val sheetsService = Sheets.Builder(
-            AndroidHttp.newCompatibleTransport(),
-            JacksonFactory.getDefaultInstance(),
-            credential
-        )
-            .setApplicationName("Timestamp Calendar")
-            .build()
+        val sheetsService = sheetsService(credential)
 
         val value = ValueRange().setValues(
             listOf(sendRow)
@@ -71,8 +64,15 @@ class SendRowService : IntentService("SendRowService") {
 
         val sheetId = PreferenceManager.getDefaultSharedPreferences(this)
             .getString("spread_sheet_id", null)
+            ?: return
 
-        val sheetName = "シート1"    // TODO
+        val sheetName = DataSheet.logSheetName
+
+        // logシートが無かったら作成する
+        if (!DataSheet.logSheetExists(credential, sheetId)) {
+            DataSheet.makeLogSheet(credential, sheetId)
+            println("makeLogSheet")
+        }
 
         val result = sheetsService.Spreadsheets().Values()
             .append(sheetId, "'$sheetName'!A:B", value)
