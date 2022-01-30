@@ -16,7 +16,9 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import io.github.durun.timestampcalendar.R
 import io.github.durun.timestampcalendar.databinding.SettingsActivityBinding
+import io.github.durun.timestampcalendar.libs.DataSheet
 import io.github.durun.timestampcalendar.libs.MyAuth
+import io.github.durun.timestampcalendar.libs.sheetsService
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: SettingsActivityBinding
@@ -56,7 +58,57 @@ class SettingsActivity : AppCompatActivity() {
         startSignIn.launch(auth.signInIntent())
     }
 
+    fun createSpreadSheet(view: View) {
+        // サインインしてなければ中止
+        if (!auth.isSignedIn()) {
+            Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val progress = ProgressDialog(this)
+            .apply {
+                title = "Creating Data SpreadSheet"
+                setProgressStyle(ProgressDialog.STYLE_SPINNER)
+            }
+        progress.show()
+        Thread {
+            Looper.prepare()
+            val sheetId = DataSheet.getIdOrNull(auth.credential)
+            if (sheetId != null) {
+                // シートが見つかった
+                runOnUiThread {
+                    settingsFragment
+                        .findPreference<EditTextPreference>("spread_sheet_id")
+                        ?.text = sheetId
+                    Toast.makeText(this, "${DataSheet.title} already exists", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            } else {
+                sheetsService(auth.credential).Spreadsheets()
+                    .create(DataSheet.newSheet())
+                    .execute()
+                val id = DataSheet.getIdOrNull(auth.credential)
+                    ?: kotlin.run {
+                        progress.dismiss()
+                        return@Thread
+                    }
+                runOnUiThread {
+                    settingsFragment
+                        .findPreference<EditTextPreference>("spread_sheet_id")
+                        ?.text = id
+                    Toast.makeText(this, "Created Sheet", Toast.LENGTH_SHORT).show()
+                }
+            }
+            progress.dismiss()
+        }.start()
+    }
+
     fun selectSpreadSheet(view: View) {
+        // サインインしてなければ中止
+        if (!auth.isSignedIn()) {
+            Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
         val progress = ProgressDialog(this)
             .apply {
                 setCancelable(true)
@@ -73,7 +125,7 @@ class SettingsActivity : AppCompatActivity() {
             progress.dismiss()
             runOnUiThread {
                 val dialog = AlertDialog.Builder(this)
-                    .setTitle("ラジオボタンダイアログ")
+                    .setTitle("Select Data Sheet")
                     // 表示アイテムを指定する //
                     .setSingleChoiceItems(items, -1) { _, i ->
                         selected = i
