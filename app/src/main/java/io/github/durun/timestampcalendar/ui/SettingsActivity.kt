@@ -1,11 +1,13 @@
 package io.github.durun.timestampcalendar.ui
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
@@ -17,8 +19,21 @@ import io.github.durun.timestampcalendar.databinding.SettingsActivityBinding
 import io.github.durun.timestampcalendar.libs.MyAuth
 
 class SettingsActivity : AppCompatActivity() {
-    lateinit var binding: SettingsActivityBinding
-    lateinit var settingsFragment: SettingsFragment
+    private lateinit var binding: SettingsActivityBinding
+    private lateinit var settingsFragment: SettingsFragment
+    private lateinit var auth: MyAuth
+    private val startSignIn =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val data = result.data
+            if (result.resultCode == Activity.RESULT_OK && data != null) auth.handleSignInResult(
+                data
+            )
+            Toast.makeText(
+                applicationContext,
+                "Signed in: ${auth.credential.selectedAccount?.name}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,12 +47,17 @@ class SettingsActivity : AppCompatActivity() {
                 .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        auth = MyAuth(this)
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
         }
+    }
+
+    fun loginToGoogle(view: View) {
+        startSignIn.launch(auth.signInIntent())
     }
 
     fun selectSpreadSheet(view: View) {
@@ -86,7 +106,7 @@ class SettingsActivity : AppCompatActivity() {
             .let {
                 it.signInLastAccount()
                 if (!it.isSignedIn()) {
-                    Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show()
                     return emptyList()
                 }
                 println("Account: ${it.credential.selectedAccount.name}")
@@ -98,7 +118,6 @@ class SettingsActivity : AppCompatActivity() {
                     .setApplicationName("Timestamp Calendar")
                     .build()
             }
-        println("Accessing Drive")
         val files = service.Files()
             .list()
             .setCorpora("user")
@@ -107,7 +126,6 @@ class SettingsActivity : AppCompatActivity() {
             .setPageSize(100)
             .execute()
             .files
-        println("Received from Drive")
         return files.map { SheetEntry(it.name, it.id) }
     }
 }
