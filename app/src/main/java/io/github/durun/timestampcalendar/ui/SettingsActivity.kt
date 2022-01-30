@@ -50,8 +50,8 @@ class SettingsActivity : AppCompatActivity() {
 
         val thread = Thread {
             Looper.prepare()
-            val sheetAndIds = getSpreadSheetList()
-            val items = sheetAndIds.map { it.first }.toTypedArray()
+            val sheets = getSpreadSheetList()
+            val items = sheets.map { it.name }.toTypedArray()
             var selected: Int? = null
 
             progress.dismiss()
@@ -63,14 +63,14 @@ class SettingsActivity : AppCompatActivity() {
                         selected = i
                     }
                     // 決定・キャンセル用にボタンも配置 //
-                    .setPositiveButton("OK") { _, i ->
+                    .setPositiveButton("OK") { _, _ ->
                         if (selected != null) {
-                            settingsFragment.findPreference<EditTextPreference>("spread_sheet_id")
-                                ?.text = sheetAndIds[selected!!].second
+                            settingsFragment
+                                .findPreference<EditTextPreference>("spread_sheet_id")
+                                ?.text = sheets[selected!!].id
                         }
                     }
-                    .setNeutralButton("Cancel") { _, i ->
-                    }
+                    .setNeutralButton("Cancel") { _, _ -> }
                     .create()
                 dialog.show()
             }
@@ -79,7 +79,9 @@ class SettingsActivity : AppCompatActivity() {
         thread.start()
     }
 
-    private fun getSpreadSheetList(): List<Pair<String, String>> {
+    data class SheetEntry(val name: String, val id: String)
+
+    private fun getSpreadSheetList(): List<SheetEntry> {
         val service = MyAuth(this)
             .let {
                 it.signInLastAccount()
@@ -106,6 +108,6 @@ class SettingsActivity : AppCompatActivity() {
             .execute()
             .files
         println("Received from Drive")
-        return files.map { it.name to it.id }
+        return files.map { SheetEntry(it.name, it.id) }
     }
 }
