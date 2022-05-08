@@ -5,6 +5,11 @@
             app:key="spread_sheet_id"
             app:title="SpreadSheet ID"
             app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="calendar_id"
+            app:title="Calendar ID"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/messages_header">

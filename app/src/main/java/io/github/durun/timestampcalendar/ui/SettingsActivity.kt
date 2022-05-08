@@ -166,9 +166,53 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     fun selectCalendar(view: View) {
-        val calendars = calendarService(auth.credential).CalendarList()
-            .list()
-            .execute()
-            .items
+        // サインインしてなければ中止
+        if (!auth.isSignedIn()) {
+            Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+        // Prepare ProgressDialog
+        val progress = ProgressDialog(this)
+            .apply {
+                setCancelable(true)
+                setTitle("Loading calendar list")
+                setProgressStyle(ProgressDialog.STYLE_SPINNER)
+            }
+        val thread = Thread {
+            Looper.prepare()
+            // Get calendar list
+            val calendars = calendarService(auth.credential).CalendarList()
+                .list()
+                .execute()
+                .items
+                .filter { it.accessRole == "owner" }
+            val items = calendars.map { it.summary }.toTypedArray()
+            var selected: Int? = null
+            // Dismiss ProgressDialog
+            progress.dismiss()
+            // Show
+            runOnUiThread {
+                val dialog = AlertDialog.Builder(this)
+                    .setTitle("Select Calendar")
+                    // 表示アイテムを指定する //
+                    .setSingleChoiceItems(items, -1) { _, i ->
+                        selected = i
+                    }
+                    // 決定・キャンセル用にボタンも配置 //
+                    .setPositiveButton("OK") { _, _ ->
+                        if (selected != null) {
+                            settingsFragment
+                                .findPreference<EditTextPreference>("calendar_id")
+                                ?.text = calendars[selected!!].id
+                        }
+                    }
+                    .setNeutralButton("Cancel") { _, _ -> }
+                    .create()
+                dialog.show()
+            }
+        }
+        // Start
+        progress.show()
+        thread.start()
     }
 }

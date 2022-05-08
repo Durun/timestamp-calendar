@@ -15,7 +15,8 @@ class MyAuth(private val context: Context) {
         private const val TAG = "MyAuth"
         private val scopes = listOf(
             "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive"
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/calendar"
         )
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .apply { scopes.forEach { requestScopes(Scope(it)) } }
