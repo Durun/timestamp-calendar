@@ -1,12 +1,15 @@
 package io.github.durun.timestampcalendar.libs
 
+import android.util.Log
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.*
 import com.google.api.services.sheets.v4.model.RowData
 
 object DataSheet {
     const val title = "TimeStampCalendarData"
-    const val controlSheetName = "control"
+    private const val controlSheetName = "control"
+    private const val doneValueRange = "${controlSheetName}!B1"
     const val logSheetName = "log"
 
     fun newSheet(): Spreadsheet {
@@ -73,5 +76,19 @@ object DataSheet {
             .execute()
         val titles = spreadsheet.sheets.map { it.properties.title }
         return titles.containsAll(listOf(controlSheetName, logSheetName))
+    }
+
+    fun readDoneIndex(credential: GoogleAccountCredential, spreadSheetId: String): Int? {
+        val result = sheetsService(credential).Spreadsheets().get(spreadSheetId)
+            .apply {
+                includeGridData = true
+                ranges = listOf(doneValueRange)
+            }
+            .execute()
+        val cell = result.sheets.first()
+            .data.first()
+            .rowData.first()
+            .getValues().first()
+        return cell.effectiveValue.numberValue?.toInt()
     }
 }
