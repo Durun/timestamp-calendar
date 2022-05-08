@@ -1,10 +1,9 @@
 package io.github.durun.timestampcalendar.libs
 
-import android.util.Log
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.*
 import com.google.api.services.sheets.v4.model.RowData
+import java.time.LocalDateTime
 
 object DataSheet {
     const val title = "TimeStampCalendarData"
@@ -90,5 +89,23 @@ object DataSheet {
             .rowData.first()
             .getValues().first()
         return cell.effectiveValue.numberValue?.toInt()
+    }
+
+    fun readHistory(credential: GoogleAccountCredential, spreadSheetId: String, doneIndex: Int): List<LogEntry> {
+        val result = sheetsService(credential).Spreadsheets().get(spreadSheetId)
+            .apply {
+                includeGridData = true
+                ranges = listOf("A$doneIndex+1:B")
+            }
+            .execute()
+        return result.sheets.first()
+            .data.first()
+            .rowData.map { row ->
+                val (date, text) = row.getValues().map { it.userEnteredValue.stringValue }
+                LogEntry(
+                    date = LocalDateTime.parse(date, dateFormatter),
+                    text = text
+                )
+            }
     }
 }

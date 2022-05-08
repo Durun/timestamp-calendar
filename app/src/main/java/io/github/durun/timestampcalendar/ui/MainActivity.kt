@@ -144,8 +144,9 @@ class MainActivity : AppCompatActivity() {
         val thread = Thread {
             val preferences = PreferenceManager.getDefaultSharedPreferences(this)
             val sheetId = preferences.getString("spread_sheet_id", null) ?: return@Thread
-            // カレンダーへの反映が終わっているIndex
+            // カレンダーへの反映が終わっている行のIndex
             val doneIndex = DataSheet.readDoneIndex(auth.credential, sheetId) ?: return@Thread
+            val entries = DataSheet.readHistory(auth.credential, sheetId, doneIndex)
             // TODO
             Log.d(TAG, "doneIndex = $doneIndex")
             val calendarId = preferences.getString("calendar_id", null) ?: return@Thread
