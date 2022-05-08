@@ -52,6 +52,10 @@ dependencies {
     // To use google drive
     implementation("com.google.apis:google-api-services-drive:v3-rev110-1.23.0")
 
+    // To use google calendar
+    implementation("com.google.apis:google-api-services-calendar:v3-rev411-1.25.0")
+
+
     // To solve Duplicate class
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
 

@@ -13,10 +13,7 @@ import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
 import io.github.durun.timestampcalendar.R
 import io.github.durun.timestampcalendar.databinding.SettingsActivityBinding
-import io.github.durun.timestampcalendar.libs.DataSheet
-import io.github.durun.timestampcalendar.libs.MyAuth
-import io.github.durun.timestampcalendar.libs.driveService
-import io.github.durun.timestampcalendar.libs.sheetsService
+import io.github.durun.timestampcalendar.libs.*
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: SettingsActivityBinding
@@ -166,5 +163,12 @@ class SettingsActivity : AppCompatActivity() {
             .execute()
             .files
         return files.map { SheetEntry(it.name, it.id) }
+    }
+
+    fun selectCalendar(view: View) {
+        val calendars = calendarService(auth.credential).CalendarList()
+            .list()
+            .execute()
+            .items
     }
 }
