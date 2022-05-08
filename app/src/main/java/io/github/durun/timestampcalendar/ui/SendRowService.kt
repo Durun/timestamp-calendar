@@ -10,10 +10,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.preference.PreferenceManager
 import com.google.api.services.sheets.v4.model.ValueRange
 import io.github.durun.timestampcalendar.R
-import io.github.durun.timestampcalendar.libs.DataSheet
-import io.github.durun.timestampcalendar.libs.MyAuth
-import io.github.durun.timestampcalendar.libs.RowData
-import io.github.durun.timestampcalendar.libs.sheetsService
+import io.github.durun.timestampcalendar.libs.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -25,8 +22,7 @@ class SendRowService : IntentService("SendRowService") {
         private val CHANNEL_ID = TAG
 
         private val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd kk:mm:ss")
-        private val formatter2 =
-            DateTimeFormatter.ofPattern("MMMM dd, yyyy' at 'hh:mma", Locale("en"))
+        private val formatter2 = dateFormatter
 
         private val notificationId = AtomicInteger(0)
     }
