@@ -11,7 +11,7 @@ import java.util.*
 object Calendar {
     private const val TAG = "Calendar"
     fun insertEvent(credential: GoogleAccountCredential, calendarId: String, entry: LogEntry) {
-        val date = Date.from(entry.date.toInstant(ZoneOffset.ofHours(9)))
+        val date = Date.from(entry.date.toInstant())
         Log.d(TAG, date.toString())
         val dateTime = DateTime(date)
         val event = Event().apply {

@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.services.sheets.v4.model.*
 import com.google.api.services.sheets.v4.model.RowData
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 object DataSheet {
     private const val TAG = "DataSheet"
@@ -118,7 +118,7 @@ object DataSheet {
             .rowData?.map { row ->
                 val (date, text) = row.getValues().map { it.formattedValue }
                 LogEntry(
-                    date = LocalDateTime.parse(date, dateFormatter),
+                    date = OffsetDateTime.parse(date, dateFormatter),
                     text = text
                 )
             } ?: emptyList()

@@ -1,8 +1,8 @@
 package io.github.durun.timestampcalendar.libs
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 data class LogEntry(
-    val date: LocalDateTime,
+    val date: OffsetDateTime,
     val text: String
 )

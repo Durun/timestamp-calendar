@@ -5,14 +5,11 @@ import android.content.Intent
 import androidx.preference.PreferenceManager
 import com.google.api.services.sheets.v4.model.ValueRange
 import io.github.durun.timestampcalendar.libs.*
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.time.OffsetDateTime
 
 class SendRowService : IntentService("SendRowService") {
     companion object {
         private const val TAG = "SendRowService"
-        private val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd kk:mm:ss")
-        private val formatter2 = dateFormatter
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -24,7 +21,7 @@ class SendRowService : IntentService("SendRowService") {
         val credential = auth.credential
 
         // 送る行データ
-        val date = LocalDateTime.now().format(formatter2)
+        val date = OffsetDateTime.now().format(dateFormatter)
         val text = rowData.text
         val sendRow = listOf(date, text)
 
