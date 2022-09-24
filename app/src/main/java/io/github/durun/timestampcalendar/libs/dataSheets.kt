@@ -1,5 +1,6 @@
 package io.github.durun.timestampcalendar.libs
 
+import android.util.Log
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.services.sheets.v4.model.*
 import com.google.api.services.sheets.v4.model.RowData
@@ -89,6 +90,17 @@ object DataSheet {
             .rowData.first()
             .getValues().first()
         return cell.effectiveValue.numberValue?.toInt()
+    }
+
+    fun writeDoneIndex(credential: GoogleAccountCredential, spreadSheetId: String, index: Int) {
+        val content = ValueRange()
+            .setRange(doneValueRange)
+            .setValues(listOf(listOf("$index")))
+        val result = sheetsService(credential).Spreadsheets().values()
+            .update(spreadSheetId, doneValueRange, content)
+            .setValueInputOption("RAW")
+            .execute()
+        Log.d("DataSheet", result.toPrettyString())
     }
 
     fun readHistory(credential: GoogleAccountCredential, spreadSheetId: String, doneIndex: Int): List<LogEntry> {

@@ -35,10 +35,13 @@ class UpdateCalendarService : IntentService("UpdateCalendarService") {
             entries.forEach { entry ->
                 Calendar.insertEvent(auth.credential, calendarId, entry)
             }
+            val newDoneIndex = doneIndex + entries.size
+            DataSheet.writeDoneIndex(auth.credential, sheetId, newDoneIndex)
             notification.notifyComplete(this)
         } catch (e: Exception) {
             notification.setContentText(e.message ?: e.stackTraceToString())
             notification.notifyComplete(this)
+            Log.d(TAG, e.message ?: e.stackTraceToString())
         }
     }
 }
