@@ -1,29 +1,18 @@
 package io.github.durun.timestampcalendar.ui
 
 import android.app.IntentService
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.preference.PreferenceManager
 import com.google.api.services.sheets.v4.model.ValueRange
-import io.github.durun.timestampcalendar.R
 import io.github.durun.timestampcalendar.libs.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.atomic.AtomicInteger
 
 class SendRowService : IntentService("SendRowService") {
     companion object {
         private const val TAG = "SendRowService"
-        private val CHANNEL_ID = TAG
-
         private val formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd kk:mm:ss")
         private val formatter2 = dateFormatter
-
-        private val notificationId = AtomicInteger(0)
     }
 
     override fun onHandleIntent(intent: Intent?) {
@@ -35,8 +24,7 @@ class SendRowService : IntentService("SendRowService") {
         val credential = auth.credential
 
         // 送る行データ
-        val date =
-            LocalDateTime.now().format(formatter2)
+        val date = LocalDateTime.now().format(formatter2)
         val text = rowData.text
         val sendRow = listOf(date, text)
 
@@ -65,7 +53,7 @@ class SendRowService : IntentService("SendRowService") {
                 println("makeLogSheet")
             }
 
-            val result = sheetsService.Spreadsheets().Values()
+            sheetsService.Spreadsheets().Values()
                 .append(sheetId, "'$sheetName'!A:B", value)
                 .setValueInputOption("USER_ENTERED")
                 //.setValueInputOption("RAW")
