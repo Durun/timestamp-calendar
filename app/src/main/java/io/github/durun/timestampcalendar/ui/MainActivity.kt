@@ -150,6 +150,9 @@ class MainActivity : AppCompatActivity() {
             // TODO
             Log.d(TAG, "doneIndex = $doneIndex")
             val calendarId = preferences.getString("calendar_id", null) ?: return@Thread
+            entries.forEach { entry ->
+                Calendar.insertEvent(auth.credential, calendarId, entry)
+            }
         }
         thread.start()
     }

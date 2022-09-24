@@ -95,13 +95,13 @@ object DataSheet {
         val result = sheetsService(credential).Spreadsheets().get(spreadSheetId)
             .apply {
                 includeGridData = true
-                ranges = listOf("A$doneIndex+1:B")
+                ranges = listOf("${logSheetName}!A${doneIndex+1}:B")
             }
             .execute()
-        return result.sheets.first()
+        return result.sheets.first { it.properties.title == logSheetName }
             .data.first()
             .rowData.map { row ->
-                val (date, text) = row.getValues().map { it.userEnteredValue.stringValue }
+                val (date, text) = row.getValues().map { it.formattedValue }
                 LogEntry(
                     date = LocalDateTime.parse(date, dateFormatter),
                     text = text
