@@ -15,7 +15,11 @@
         <service
             android:name=".ui.SendRowService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
+        <service
+            android:name=".ui.UpdateCalendarService"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity
             android:name=".ui.MainActivity"

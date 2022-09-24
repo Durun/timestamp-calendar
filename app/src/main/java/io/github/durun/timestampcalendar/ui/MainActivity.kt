@@ -3,14 +3,12 @@ package io.github.durun.timestampcalendar.ui
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -141,19 +139,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateCalendar(view: View) {
-        val thread = Thread {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-            val sheetId = preferences.getString("spread_sheet_id", null) ?: return@Thread
-            // カレンダーへの反映が終わっている行のIndex
-            val doneIndex = DataSheet.readDoneIndex(auth.credential, sheetId) ?: return@Thread
-            val entries = DataSheet.readHistory(auth.credential, sheetId, doneIndex)
-            // TODO
-            Log.d(TAG, "doneIndex = $doneIndex")
-            val calendarId = preferences.getString("calendar_id", null) ?: return@Thread
-            entries.forEach { entry ->
-                Calendar.insertEvent(auth.credential, calendarId, entry)
-            }
-        }
-        thread.start()
+        val intent = Intent(this, UpdateCalendarService::class.java)
+            .setAction(Intent.ACTION_SEND)
+        startService(intent)
+        return
     }
 }

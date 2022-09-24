@@ -6,11 +6,14 @@ import com.google.api.client.util.DateTime
 import com.google.api.services.calendar.model.Event
 import com.google.api.services.calendar.model.EventDateTime
 import java.time.ZoneOffset
+import java.util.*
 
 object Calendar {
+    private const val TAG = "Calendar"
     fun insertEvent(credential: GoogleAccountCredential, calendarId: String, entry: LogEntry) {
-        Log.d("Calendar", rfc3339DateFormatter.format(entry.date.toInstant(ZoneOffset.UTC)))
-        val dateTime = DateTime(rfc3339DateFormatter.format(entry.date.toInstant(ZoneOffset.UTC)))
+        val date = Date.from(entry.date.toInstant(ZoneOffset.ofHours(9)))
+        Log.d(TAG, date.toString())
+        val dateTime = DateTime(date)
         val event = Event().apply {
             summary = entry.text
             description = entry.text
