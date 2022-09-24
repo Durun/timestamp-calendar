@@ -13,7 +13,6 @@ import io.github.durun.timestampcalendar.R
 import io.github.durun.timestampcalendar.libs.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class SendRowService : IntentService("SendRowService") {
@@ -42,14 +41,8 @@ class SendRowService : IntentService("SendRowService") {
         val sendRow = listOf(date, text)
 
         // 途中通知
-        createNotificationChannel()
-        val notification = createNotification().also {
-            it.second.apply {
-                setContentText(text)
-                setProgress(100, 0, true)
-            }
-        }
-        notification.notify()
+        val notification = ProgressNotification.of(this, "Timestamp Sent")
+        notification.notifyInProgress(this, text)
 
         // スプレッドシート
         val sheetsService = sheetsService(credential)
@@ -77,44 +70,6 @@ class SendRowService : IntentService("SendRowService") {
             .execute()
 
         // 完了通知
-        notification.second.setProgress(100, 100, false)
-        notification.notify()
-    }
-
-
-    // notification
-
-    /**
-     * @return notificationId, notification
-     */
-    private fun createNotification(): Pair<Int, NotificationCompat.Builder> {
-        return (notificationId.addAndGet(1)) to NotificationCompat.Builder(this, CHANNEL_ID).apply {
-            setSmallIcon(R.mipmap.ic_launcher)
-            setContentTitle("Timestamp Sent")
-            priority = NotificationCompat.PRIORITY_DEFAULT
-        }
-    }
-
-    private fun Pair<Int, NotificationCompat.Builder>.notify() {
-        NotificationManagerCompat.from(this@SendRowService)
-            .notify(this.first, this.second.build())
-    }
-
-    private fun Pair<Int, NotificationCompat.Builder>.cancel() {
-        NotificationManagerCompat.from(this@SendRowService)
-            .cancel(this.first)
-    }
-
-    private fun createNotificationChannel() {
-        val name = "Timestamp"
-        val descriptionText = "Timestamp Calendar notification"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-            description = descriptionText
-        }
-        // Register the channel with the system
-        val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
+        notification.notifyComplete(this)
     }
 }
