@@ -71,13 +71,17 @@ class ProgressNotification private constructor(
     }
 
     /**
+     * 表示テキストを設定する
+     */
+    fun setContentText(text: String) {
+        this.builder.setContentText(text)
+    }
+
+    /**
      * In progress 通知を表示する
      */
-    fun notifyInProgress(context: Context, content: String) {
-        this.builder.apply {
-            setContentText(content)
-            setProgress(100, 0, true)
-        }
+    fun notifyInProgress(context: Context) {
+        this.builder.setProgress(100, 0, true)
         this.notify(context)
     }
 
@@ -85,9 +89,7 @@ class ProgressNotification private constructor(
      * 完了通知を表示する
      */
     fun notifyComplete(context: Context) {
-        this.builder.apply {
-            setProgress(100, 100, false)
-        }
+        this.builder.setProgress(100, 100, false)
         this.notify(context)
     }
 }

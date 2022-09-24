@@ -42,34 +42,40 @@ class SendRowService : IntentService("SendRowService") {
 
         // 途中通知
         val notification = ProgressNotification.of(this, "Timestamp Sent")
-        notification.notifyInProgress(this, text)
+        notification.setContentText(text)
+        notification.notifyInProgress(this)
 
-        // スプレッドシート
-        val sheetsService = sheetsService(credential)
+        try {
+            // スプレッドシート
+            val sheetsService = sheetsService(credential)
 
-        val value = ValueRange().setValues(
-            listOf(sendRow)
-        )
+            val value = ValueRange().setValues(
+                listOf(sendRow)
+            )
 
-        val sheetId = PreferenceManager.getDefaultSharedPreferences(this)
-            .getString("spread_sheet_id", null)
-            ?: return
+            val sheetId = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("spread_sheet_id", null)
+                ?: return
 
-        val sheetName = DataSheet.logSheetName
+            val sheetName = DataSheet.logSheetName
 
-        // logシートが無かったら作成する
-        if (!DataSheet.logSheetExists(credential, sheetId)) {
-            DataSheet.makeLogSheet(credential, sheetId)
-            println("makeLogSheet")
+            // logシートが無かったら作成する
+            if (!DataSheet.logSheetExists(credential, sheetId)) {
+                DataSheet.makeLogSheet(credential, sheetId)
+                println("makeLogSheet")
+            }
+
+            val result = sheetsService.Spreadsheets().Values()
+                .append(sheetId, "'$sheetName'!A:B", value)
+                .setValueInputOption("USER_ENTERED")
+                //.setValueInputOption("RAW")
+                .execute()
+
+            // 完了通知
+            notification.notifyComplete(this)
+        } catch (e: Exception) {
+            notification.setContentText(e.message ?: e.stackTraceToString())
+            notification.notifyComplete(this)
         }
-
-        val result = sheetsService.Spreadsheets().Values()
-            .append(sheetId, "'$sheetName'!A:B", value)
-            .setValueInputOption("USER_ENTERED")
-            //.setValueInputOption("RAW")
-            .execute()
-
-        // 完了通知
-        notification.notifyComplete(this)
     }
 }
