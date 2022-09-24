@@ -7,6 +7,7 @@ import com.google.api.services.sheets.v4.model.RowData
 import java.time.LocalDateTime
 
 object DataSheet {
+    private const val TAG = "DataSheet"
     const val title = "TimeStampCalendarData"
     private const val controlSheetName = "control"
     private const val doneValueRange = "${controlSheetName}!B1"
@@ -95,12 +96,12 @@ object DataSheet {
     fun writeDoneIndex(credential: GoogleAccountCredential, spreadSheetId: String, index: Int) {
         val content = ValueRange()
             .setRange(doneValueRange)
-            .setValues(listOf(listOf("$index")))
+            .setValues(listOf(listOf(index)))
         val result = sheetsService(credential).Spreadsheets().values()
             .update(spreadSheetId, doneValueRange, content)
             .setValueInputOption("RAW")
             .execute()
-        Log.d("DataSheet", result.toPrettyString())
+        Log.d(TAG, result.toPrettyString())
     }
 
     fun readHistory(credential: GoogleAccountCredential, spreadSheetId: String, doneIndex: Int): List<LogEntry> {
@@ -110,14 +111,16 @@ object DataSheet {
                 ranges = listOf("${logSheetName}!A${doneIndex+1}:B")
             }
             .execute()
-        return result.sheets.first { it.properties.title == logSheetName }
-            .data.first()
-            .rowData.map { row ->
+        return ((result.sheets.firstOrNull { it.properties.title == logSheetName }
+            ?: throw Exception("Sheet $logSheetName not found in: ${result.sheets}"))
+            .data.firstOrNull()
+            ?: throw Exception("Data is empty: ${result.sheets.first { it.properties.title == logSheetName }.data}"))
+            .rowData?.map { row ->
                 val (date, text) = row.getValues().map { it.formattedValue }
                 LogEntry(
                     date = LocalDateTime.parse(date, dateFormatter),
                     text = text
                 )
-            }
+            } ?: emptyList()
     }
 }

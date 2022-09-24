@@ -86,6 +86,14 @@ class ProgressNotification private constructor(
     }
 
     /**
+     * 進捗率を表示する
+     */
+    fun notifyProgress(context: Context, max: Int, progress: Int) {
+        this.builder.setProgress(max, progress, false)
+        this.notify(context)
+    }
+
+    /**
      * 完了通知を表示する
      */
     fun notifyComplete(context: Context) {

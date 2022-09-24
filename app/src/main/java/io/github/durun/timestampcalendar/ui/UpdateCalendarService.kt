@@ -32,16 +32,19 @@ class UpdateCalendarService : IntentService("UpdateCalendarService") {
             Log.d(TAG, "doneIndex = $doneIndex")
             val calendarId = preferences.getString("calendar_id", null)
                 ?: throw Exception("Preference calendar_id is not set")
-            entries.forEach { entry ->
+            entries.forEachIndexed { i, entry ->
+                notification.notifyProgress(this, entries.size, i)
                 Calendar.insertEvent(auth.credential, calendarId, entry)
             }
             val newDoneIndex = doneIndex + entries.size
-            DataSheet.writeDoneIndex(auth.credential, sheetId, newDoneIndex)
+            if (newDoneIndex != doneIndex) {
+                DataSheet.writeDoneIndex(auth.credential, sheetId, newDoneIndex)
+            }
             notification.notifyComplete(this)
         } catch (e: Exception) {
             notification.setContentText(e.message ?: e.stackTraceToString())
             notification.notifyComplete(this)
-            Log.d(TAG, e.message ?: e.stackTraceToString())
+            throw e
         }
     }
 }
