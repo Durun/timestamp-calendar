@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk = 31
+    compileSdk = 33
 
     defaultConfig {
         applicationId = "io.github.durun.timestampcalendar"
         minSdk = 28
-        targetSdk = 31
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -35,22 +35,23 @@ android {
     packagingOptions {
         resources.excludes += "META-INF/DEPENDENCIES"
     }
+    namespace = "io.github.durun.timestampcalendar"
 }
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.7.0")
-    implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation("com.google.android.material:material:1.6.0")
+    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("com.google.android.material:material:1.6.1")
     implementation("androidx.preference:preference-ktx:1.2.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.4.2")
-    implementation("androidx.navigation:navigation-ui-ktx:2.4.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.2")
 
     // To use spread sheet
     implementation("com.google.apis:google-api-services-sheets:v4-rev516-1.23.0")
     implementation("com.google.api-client:google-api-client-android:1.23.0")
-    implementation("com.google.android.gms:play-services-auth:20.2.0")
+    implementation("com.google.android.gms:play-services-auth:20.3.0")
 
     // To use google drive
     implementation("com.google.apis:google-api-services-drive:v3-rev110-1.23.0")
